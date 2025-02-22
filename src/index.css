@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+.night-mode {
+  filter: brightness(0.8) sepia(0.2);
+}
+
+/* Digital font */
+@font-face {
+  font-family: 'Digital';
+  src: url('https://fonts.cdnfonts.com/css/ds-digital') format('woff2');
+}
+
+.font-digital {
+  font-family: 'Digital', monospace;
+}
+
+/* Doto font */
+@import url('https://fonts.googleapis.com/css2?family=Dosis:wght@200..800&display=swap');
+
+.font-doto {
+  font-family: 'Dosis', sans-serif;
+}

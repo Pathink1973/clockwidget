@@ -95,60 +95,58 @@ export const CookingTimer: React.FC<CookingTimerProps> = ({ isMuted }) => {
 
   return (
     <div className="text-center">
-      <h2 className="text-3xl font-bold mb-8">Cooking Timer</h2>
+      <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-8">Cooking Timer</h2>
 
-      <div className="mb-8">
-        <div className="text-8xl font-mono font-bold tracking-wider">
+      <div className="mb-4 sm:mb-8">
+        <div className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-mono font-bold tracking-wider">
           {formatTime(timeLeft)}
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-4 mb-6">
         {PRESETS.map((preset) => (
           <button
             key={preset.name}
             onClick={() => handlePresetSelect(preset)}
-            className={`p-4 rounded-lg transition-all ${
+            className={`p-2 sm:p-3 rounded text-sm sm:text-base transition-all ${
               selectedPreset === preset.name
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-800 hover:bg-gray-700 text-white'
+                ? 'bg-indigo-600 text-white'
+                : 'bg-gray-100 dark:bg-gray-800 hover:bg-indigo-100 dark:hover:bg-gray-700'
             }`}
           >
-            <div className="font-medium">{preset.name}</div>
-            <div className="text-sm text-gray-400">{formatTime(preset.duration)}</div>
+            <div className="font-semibold">{preset.name}</div>
+            <div className="text-xs sm:text-sm opacity-75">{formatTime(preset.duration)}</div>
           </button>
         ))}
       </div>
 
-      <div className="flex justify-center gap-4 mb-8">
+      <div className="mb-6 sm:mb-8">
         <input
           type="number"
           value={customTime}
           onChange={handleCustomTimeChange}
-          placeholder="Custom minutes"
-          className="bg-gray-800 text-white px-4 py-2 rounded-lg w-40 text-center"
+          placeholder="Enter minutes"
+          className="w-32 sm:w-40 px-3 py-2 text-sm sm:text-base rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 mb-4"
           min="1"
         />
-      </div>
-
-      <div className="flex justify-center gap-4">
-        <button
-          onClick={handleStartPause}
-          className={`px-6 py-3 rounded-full flex items-center gap-2 text-white ${
-            isRunning ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-600 hover:bg-green-700'
-          }`}
-          disabled={timeLeft === 0}
-        >
-          {isRunning ? <Pause size={20} /> : <Play size={20} />}
-          {isRunning ? 'Pause' : 'Start'}
-        </button>
-        <button
-          onClick={handleReset}
-          className="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-full flex items-center gap-2 text-white"
-        >
-          <RotateCcw size={20} />
-          Reset
-        </button>
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
+          <button
+            onClick={handleStartPause}
+            className={`px-4 sm:px-6 py-2 sm:py-3 rounded-full flex items-center gap-2 text-sm sm:text-base text-white ${
+              isRunning ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-600 hover:bg-green-700'
+            }`}
+          >
+            {isRunning ? <Pause size={18} className="sm:w-5 sm:h-5" /> : <Play size={18} className="sm:w-5 sm:h-5" />}
+            {isRunning ? 'Pause' : 'Start'}
+          </button>
+          <button
+            onClick={handleReset}
+            className="bg-red-600 hover:bg-red-700 px-4 sm:px-6 py-2 sm:py-3 rounded-full flex items-center gap-2 text-sm sm:text-base text-white"
+          >
+            <RotateCcw size={18} className="sm:w-5 sm:h-5" />
+            Reset
+          </button>
+        </div>
       </div>
     </div>
   );

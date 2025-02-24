@@ -14,7 +14,7 @@ type Tab = 'clock' | 'alarm' | 'timer' | 'stopwatch' | 'worldclock' | 'cooking';
 
 function App() {
   const [time, setTime] = useState(new Date());
-  const [isMuted, setIsMuted] = useState(true);
+  const [isMuted, setIsMuted] = useState(false);
   const [alarms, setAlarms] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<Tab>('clock');
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
@@ -70,6 +70,13 @@ function App() {
         </div>
         <div className="flex items-center gap-4">
           <button
+            onClick={toggleMute}
+            className="p-2 rounded-full hover:bg-indigo-600 text-white transition-colors bg-indigo-500"
+            title={isMuted ? "Unmute" : "Mute"}
+          >
+            {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+          </button>
+          <button
             onClick={() => updateSettings({ isDarkMode: !settings.isDarkMode })}
             className="p-2 rounded-full hover:bg-indigo-600 text-white transition-colors bg-indigo-500"
           >
@@ -87,26 +94,26 @@ function App() {
       <main className={`container mx-auto px-4 py-8 ${fontColorClass} ${fontClass}`}>
         <div className="max-w-4xl mx-auto">
           {/* Navigation Tabs */}
-          <nav className={`flex justify-center mb-12 gap-2 ${settings.isDarkMode ? 'bg-gray-900' : 'bg-gray-100'} p-2 rounded-full`}>
+          <nav className={`flex flex-wrap justify-center mb-8 md:mb-12 gap-1.5 sm:gap-2 ${settings.isDarkMode ? 'bg-gray-900' : 'bg-gray-100'} p-1.5 sm:p-2 rounded-full`}>
             {[
-              { id: 'clock', icon: <ClockIcon size={20} />, label: 'Clock' },
-              { id: 'alarm', icon: <Volume2 size={20} />, label: 'Alarm' },
-              { id: 'timer', icon: <TimerIcon size={20} />, label: 'Timer' },
-              { id: 'stopwatch', icon: <TimerIcon size={20} />, label: 'Stopwatch' },
-              { id: 'worldclock', icon: <Globe2 size={20} />, label: 'World Clock' },
-              { id: 'cooking', icon: <Utensils size={20} />, label: 'Cooking' },
+              { id: 'clock', icon: <ClockIcon size={16} className="sm:w-5 sm:h-5" />, label: 'Clock' },
+              { id: 'alarm', icon: <Volume2 size={16} className="sm:w-5 sm:h-5" />, label: 'Alarm' },
+              { id: 'timer', icon: <TimerIcon size={16} className="sm:w-5 sm:h-5" />, label: 'Timer' },
+              { id: 'stopwatch', icon: <TimerIcon size={16} className="sm:w-5 sm:h-5" />, label: 'Stopwatch' },
+              { id: 'worldclock', icon: <Globe2 size={16} className="sm:w-5 sm:h-5" />, label: 'World Clock' },
+              { id: 'cooking', icon: <Utensils size={16} className="sm:w-5 sm:h-5" />, label: 'Cooking' },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as Tab)}
-                className={`flex items-center gap-2 px-6 py-3 rounded-full transition-all text-white ${
+                className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-full transition-all text-white text-sm sm:text-base ${
                   activeTab === tab.id
                     ? 'bg-indigo-600 hover:bg-indigo-700'
                     : 'bg-gray-600 hover:bg-gray-700'
                 } ${settings.useSlideEffect ? 'hover:scale-105' : ''}`}
               >
                 {tab.icon}
-                <span className="hidden md:inline">{tab.label}</span>
+                <span className="hidden sm:inline">{tab.label}</span>
               </button>
             ))}
           </nav>
@@ -209,15 +216,7 @@ function App() {
             </div>
           </section>
 
-          {/* AdSense Spaces */}
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className={`${settings.isDarkMode ? 'bg-gray-900' : 'bg-gray-100'} p-4 rounded-3xl min-h-[250px] flex items-center justify-center backdrop-blur-lg ${settings.isDarkMode ? 'bg-opacity-50' : ''}`}>
-              <p className="text-gray-400">Google AdSense Space</p>
-            </div>
-            <div className={`${settings.isDarkMode ? 'bg-gray-900' : 'bg-gray-100'} p-4 rounded-3xl min-h-[250px] flex items-center justify-center backdrop-blur-lg ${settings.isDarkMode ? 'bg-opacity-50' : ''}`}>
-              <p className="text-gray-400">Google AdSense Space</p>
-            </div>
-          </div>
+          {/* Main Content End */}
         </div>
       </main>
       <CookieConsent />

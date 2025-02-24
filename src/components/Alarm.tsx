@@ -11,7 +11,6 @@ interface AlarmProps {
 
 export const Alarm: React.FC<AlarmProps> = ({ alarms, setAlarms, isMuted, currentTime }) => {
   const [newAlarm, setNewAlarm] = useState('');
-  const [playCreationSound, setPlayCreationSound] = useState(false);
   const [playTriggerSound, setPlayTriggerSound] = useState(false);
   const [triggeredAlarm, setTriggeredAlarm] = useState<string | null>(null);
 
@@ -23,25 +22,38 @@ export const Alarm: React.FC<AlarmProps> = ({ alarms, setAlarms, isMuted, curren
       minute: '2-digit'
     });
 
-    const matchingAlarm = alarms.find(alarm => {
-      const alarmTime = new Date();
-      const [hours, minutes] = alarm.split(':');
-      alarmTime.setHours(parseInt(hours), parseInt(minutes), 0);
-      const alarmTimeStr = alarmTime.toLocaleTimeString('en-US', {
-        hour12: false,
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-
-      return alarmTimeStr === currentTimeStr;
+    console.log('🕒 Checking alarms:', {
+      currentTimeStr,
+      alarms,
+      isMuted,
+      triggeredAlarm
     });
 
-    if (matchingAlarm && !isMuted && matchingAlarm !== triggeredAlarm) {
-      console.log('🔔 Alarm triggered:', {
-        matchingAlarm,
-        currentTime: currentTimeStr,
-        isMuted
+    const matchingAlarm = alarms.find(alarm => {
+      const [hours, minutes] = alarm.split(':');
+      const currentHours = currentTime.getHours().toString().padStart(2, '0');
+      const currentMinutes = currentTime.getMinutes().toString().padStart(2, '0');
+      const currentTimeFormatted = `${currentHours}:${currentMinutes}`;
+      
+      console.log('⏰ Comparing times:', {
+        alarm: `${hours}:${minutes}`,
+        current: currentTimeFormatted,
+        matches: currentTimeFormatted === alarm
       });
+
+      return currentTimeFormatted === alarm;
+    });
+
+    if (matchingAlarm) {
+      console.log('🔔 Found matching alarm:', {
+        matchingAlarm,
+        isMuted,
+        isAlreadyTriggered: matchingAlarm === triggeredAlarm
+      });
+    }
+
+    if (matchingAlarm && !isMuted && matchingAlarm !== triggeredAlarm) {
+      console.log('🚨 Triggering alarm:', matchingAlarm);
       
       setTriggeredAlarm(matchingAlarm);
       setPlayTriggerSound(true);
@@ -63,11 +75,6 @@ export const Alarm: React.FC<AlarmProps> = ({ alarms, setAlarms, isMuted, curren
       setAlarms(prev => [...prev, newAlarm].sort());
       setNewAlarm('');
       
-      if (!isMuted) {
-        console.log('🎵 Playing creation sound');
-        setPlayCreationSound(true);
-      }
-      
       if (Notification.permission === 'default') {
         Notification.requestPermission().then(permission => {
           console.log('Notification permission:', permission);
@@ -77,6 +84,11 @@ export const Alarm: React.FC<AlarmProps> = ({ alarms, setAlarms, isMuted, curren
   };
 
   const handleDelete = (alarmToDelete: string) => {
+    // If we're deleting a triggered alarm, stop the sound
+    if (alarmToDelete === triggeredAlarm) {
+      setPlayTriggerSound(false);
+      setTriggeredAlarm(null);
+    }
     setAlarms(alarms.filter(alarm => alarm !== alarmToDelete));
   };
 
@@ -105,12 +117,15 @@ export const Alarm: React.FC<AlarmProps> = ({ alarms, setAlarms, isMuted, curren
         {alarms.map((alarm) => (
           <div
             key={alarm}
-            className="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-800 rounded-lg"
+            className={`flex items-center justify-between p-3 ${
+              alarm === triggeredAlarm ? 'bg-red-100 dark:bg-red-900 animate-pulse' : 'bg-gray-100 dark:bg-gray-800'
+            } rounded-lg`}
           >
             <span className="text-xl font-semibold">{alarm}</span>
             <button
               onClick={() => handleDelete(alarm)}
               className="text-red-500 hover:text-red-600 p-2 rounded-full hover:bg-red-100 dark:hover:bg-red-900 transition-all"
+              title="Delete alarm"
             >
               <Trash2 size={20} />
             </button>
@@ -118,12 +133,7 @@ export const Alarm: React.FC<AlarmProps> = ({ alarms, setAlarms, isMuted, curren
         ))}
       </div>
 
-      {/* Sound components */}
-      <AlarmSound
-        type="creation"
-        play={playCreationSound}
-        onEnd={() => setPlayCreationSound(false)}
-      />
+      {/* Sound component */}
       <AlarmSound
         type="trigger"
         play={playTriggerSound}

@@ -1,36 +1,41 @@
 import React, { useEffect, useRef } from 'react';
 
 interface AlarmSoundProps {
-  type: 'creation' | 'trigger';
   play: boolean;
   onEnd?: () => void;
 }
 
-export const AlarmSound: React.FC<AlarmSoundProps> = ({ type, play, onEnd }) => {
+export const AlarmSound: React.FC<AlarmSoundProps> = ({ play, onEnd }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  const soundUrl = type === 'creation'
-    ? 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'
-    : 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3';
+  const soundUrl = '/sounds/alarm.mp3';
 
   useEffect(() => {
     const playSound = async () => {
       if (!audioRef.current) return;
       
       try {
+        console.log('🎵 Attempting to play alarm sound');
         audioRef.current.currentTime = 0;
-        audioRef.current.volume = type === 'creation' ? 0.5 : 1.0;
+        audioRef.current.volume = 1.0;
+        
+        // Ensure the audio is loaded before playing
+        if (audioRef.current.readyState < 2) { // HAVE_CURRENT_DATA
+          await new Promise((resolve) => {
+            audioRef.current!.addEventListener('canplay', resolve, { once: true });
+          });
+        }
+        
         const playPromise = audioRef.current.play();
         
         if (playPromise !== undefined) {
           playPromise
             .then(() => {
-              console.log(`🎵 Playing ${type} sound`);
+              console.log('✅ Successfully playing alarm sound');
             })
             .catch(error => {
               console.error('❌ Error playing sound:', error);
               if (error.name === 'NotAllowedError') {
-                console.log('⚠️ Please interact with the page first to enable sounds');
+                console.log('⚠️ Audio permission denied. Please interact with the page first');
               }
             });
         }
@@ -42,30 +47,35 @@ export const AlarmSound: React.FC<AlarmSoundProps> = ({ type, play, onEnd }) => 
     if (play) {
       playSound();
     } else if (audioRef.current) {
+      console.log('⏹️ Stopping alarm sound');
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
     }
-  }, [play, type]);
+  }, [play]);
 
   return (
     <audio
       ref={audioRef}
       src={soundUrl}
       preload="auto"
-      loop={type === 'trigger'}
+      loop={true}
       onEnded={() => {
-        console.log(`✅ ${type} sound finished playing`);
-        if (type === 'trigger') {
-          // For trigger sound, keep playing until manually stopped
-          if (audioRef.current && play) {
-            audioRef.current.play();
-          }
+        console.log('✅ Alarm sound finished playing');
+        // For trigger sound, keep playing until manually stopped
+        if (audioRef.current && play) {
+          console.log('🔄 Restarting alarm sound');
+          audioRef.current.play().catch(error => {
+            console.error('❌ Error restarting sound:', error);
+          });
         } else {
           onEnd?.();
         }
       }}
       onError={(e) => {
         console.error('❌ Audio error:', e);
+      }}
+      onCanPlayThrough={() => {
+        console.log('✅ Audio loaded and ready to play');
       }}
     />
   );
